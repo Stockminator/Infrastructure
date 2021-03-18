@@ -18,6 +18,7 @@ services:
       timeout: 10s
       retries: 3
     restart: unless-stopped
+
   mongo-express:
     image: mongo-express
     container_name: mongo-express
@@ -42,9 +43,20 @@ services:
       timeout: 10s
       retries: 3
     restart: unless-stopped
+
+  database:
+    image: "postgres" # use latest official postgres version
+    env_file:
+      - postgres.env # configure postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data/ # persist data even if container shuts down
+
 volumes:
   mongodb-data:
     name: mongodb-data
+  postgres-data: # named volumes can be managed easier using docker-compose
+    name: postgres-data
+
 networks:
   stockminator_network:
     name: stockminator_network
