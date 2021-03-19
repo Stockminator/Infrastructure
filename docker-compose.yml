@@ -1,5 +1,34 @@
 version: "3.8"
 services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "4369:4369"
+      - "5671:5671"
+      - "5672:5672"
+      - "25672:25672"
+      - "15672:15672"
+    networks:
+      - stockminator_network
+
+  eureka-server:
+    image:  spring-cloud-netflix-example/eureka-server
+    hostname: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - stockminator_network
+
+  config-server:
+    image:  spring-cloud-netflix-example/config-server
+    links:
+      - "eureka-server"
+      - "rabbitmq"
+    volumes:
+      - ./config-server/config:/app/config
+    networks:
+      - stockminator_network
+
   mongodb:
     image: mongo
     container_name: mongodb
