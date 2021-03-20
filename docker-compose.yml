@@ -11,23 +11,23 @@ services:
     networks:
       - stockminator_network
 
-  eureka-server:
-    image:  spring-cloud-netflix-example/eureka-server
-    hostname: eureka-server
-    ports:
-      - "8761:8761"
-    networks:
-      - stockminator_network
+#  eureka-server:
+#    image:  spring-cloud-netflix-example/eureka-server
+#    hostname: eureka-server
+#    ports:
+#      - "8761:8761"
+#    networks:
+#      - stockminator_network
 
-  config-server:
-    image:  spring-cloud-netflix-example/config-server
-    links:
-      - "eureka-server"
-      - "rabbitmq"
-    volumes:
-      - ./config-server/config:/app/config
-    networks:
-      - stockminator_network
+#  config-server:
+#    image:  spring-cloud-netflix-example/config-server
+#    links:
+#      - "eureka-server"
+#      - "rabbitmq"
+#    volumes:
+#      - ./config-server/config:/app/config
+#    networks:
+#      - stockminator_network
 
   mongodb:
     image: mongo
@@ -47,6 +47,8 @@ services:
       timeout: 10s
       retries: 3
     restart: unless-stopped
+    networks:
+      - stockminator_network
 
   mongo-express:
     image: mongo-express
@@ -72,6 +74,8 @@ services:
       timeout: 10s
       retries: 3
     restart: unless-stopped
+    networks:
+      - stockminator_network
 
   database:
     image: "postgres" # use latest official postgres version
@@ -79,12 +83,50 @@ services:
       - postgres.env # configure postgres
     volumes:
       - postgres-data:/var/lib/postgresql/data/ # persist data even if container shuts down
+    networks:
+      - stockminator_network
+
+  keycloak-database:
+    image: "postgres" # use latest official postgres version
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+      POSTGRES_DB: keycloak
+    volumes:
+      - keycloak-postgres-data:/var/lib/postgresql/data/ # persist data even if container shuts down
+    networks:
+      - stockminator_network
+
+  keycloak:
+    image: jboss/keycloak
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: keycloak-database
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: keycloak
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      KEYCLOAK_IMPORT: /tmp/keycloak-realm.json
+      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
+      #JDBC_PARAMS: "ssl=true"
+    ports:
+      - 8080:8080
+    volumes:
+      - ${PWD}/keycloak-realm.json:/tmp/keycloak-realm.json
+    networks:
+     - stockminator_network
+    depends_on:
+      - keycloak-database
 
 volumes:
   mongodb-data:
     name: mongodb-data
   postgres-data: # named volumes can be managed easier using docker-compose
     name: postgres-data
+  keycloak-postgres-data: # named volumes can be managed easier using docker-compose
+    name: keycloak-postgres-data
 
 networks:
   stockminator_network:

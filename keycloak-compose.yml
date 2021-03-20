@@ -1,0 +1,43 @@
+version: "3.8"
+services:
+  keycloak-database:
+    image: "postgres" # use latest official postgres version
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+      POSTGRES_DB: keycloak
+    volumes:
+      - keycloak-postgres-data:/var/lib/postgresql/data/ # persist data even if container shuts down
+    networks:
+      - stockminator_network
+
+  keycloak:
+    image: jboss/keycloak
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: keycloak-database
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: keycloak
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      KEYCLOAK_IMPORT: /tmp/keycloak-realm.json
+      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
+      #JDBC_PARAMS: "ssl=true"
+    ports:
+      - 8080:8080
+    volumes:
+      - ${PWD}/keycloak-realm.json:/tmp/keycloak-realm.json
+    networks:
+     - stockminator_network
+    depends_on:
+      - keycloak-database
+
+volumes:
+  keycloak-postgres-data: # named volumes can be managed easier using docker-compose
+    name: keycloak-postgres-data
+
+networks:
+  stockminator_network:
+    name: stockminator_network
