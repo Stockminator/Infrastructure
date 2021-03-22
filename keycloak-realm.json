@@ -43,6 +43,37 @@
   "roles": {
     "realm": [
       {
+        "id": "3f35bb0b-b509-440a-803e-84931d86ebaa",
+        "name": "app-admin",
+        "composite": true,
+        "composites": {
+          "client": {
+            "stockminator": [
+              "user",
+              "admin"
+            ]
+          }
+        },
+        "clientRole": false,
+        "containerId": "stockminator",
+        "attributes": {}
+      },
+      {
+        "id": "cfb268b1-7b80-4b06-b740-f72da76b5827",
+        "name": "app-user",
+        "composite": true,
+        "composites": {
+          "client": {
+            "stockminator": [
+              "user"
+            ]
+          }
+        },
+        "clientRole": false,
+        "containerId": "stockminator",
+        "attributes": {}
+      },
+      {
         "id": "7ab3b85c-af9e-45f6-b16e-8b2e297fa3cd",
         "name": "offline_access",
         "description": "${role_offline-access}",
@@ -275,7 +306,32 @@
       ],
       "security-admin-console": [],
       "admin-cli": [],
-      "stockminator": [],
+      "stockminator": [
+        {
+          "id": "8cb2f2c6-a735-4e91-960d-084e8163d8f6",
+          "name": "user",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "b8afe8c9-409e-446d-87a9-6e2e7e69d4b6",
+          "attributes": {}
+        },
+        {
+          "id": "f076dc87-66d8-4094-8f95-63ec803287f9",
+          "name": "uma_protection",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "b8afe8c9-409e-446d-87a9-6e2e7e69d4b6",
+          "attributes": {}
+        },
+        {
+          "id": "9907089c-e4de-46bd-a727-52d03db12736",
+          "name": "admin",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "b8afe8c9-409e-446d-87a9-6e2e7e69d4b6",
+          "attributes": {}
+        }
+      ],
       "account-console": [],
       "broker": [
         {
@@ -411,6 +467,34 @@
   "webAuthnPolicyPasswordlessCreateTimeout": 0,
   "webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister": false,
   "webAuthnPolicyPasswordlessAcceptableAaguids": [],
+  "users": [
+    {
+      "id": "e8f177a8-3631-49c2-916c-7385d2a2b03d",
+      "createdTimestamp": 1616419110964,
+      "username": "service-account-stockminator",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": false,
+      "serviceAccountClientId": "stockminator",
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "offline_access",
+        "uma_authorization"
+      ],
+      "clientRoles": {
+        "stockminator": [
+          "uma_protection"
+        ],
+        "account": [
+          "view-profile",
+          "manage-account"
+        ]
+      },
+      "notBefore": 0,
+      "groups": []
+    }
+  ],
   "scopeMappings": [
     {
       "clientScope": "offline_access",
@@ -665,7 +749,8 @@
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": true,
-      "serviceAccountsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": true,
       "publicClient": false,
       "frontchannelLogout": false,
       "protocol": "openid-connect",
@@ -690,6 +775,60 @@
       "authenticationFlowBindingOverrides": {},
       "fullScopeAllowed": true,
       "nodeReRegistrationTimeout": -1,
+      "protocolMappers": [
+        {
+          "id": "f08d2080-98b2-4d81-b311-605e1d28d458",
+          "name": "Client ID",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "clientId",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "clientId",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "id": "64985118-b6c7-4585-976c-d084f37a7058",
+          "name": "Client Host",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "clientHost",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "clientHost",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "id": "672fcc41-2429-45dc-8c66-86a80e93eb6e",
+          "name": "rolemapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "role": "stockminator.user"
+          }
+        },
+        {
+          "id": "0fdff020-2dbd-4157-a5d1-cfdb2b701fca",
+          "name": "Client IP Address",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "clientAddress",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "clientAddress",
+            "jsonType.label": "String"
+          }
+        }
+      ],
       "defaultClientScopes": [
         "web-origins",
         "read",
@@ -703,7 +842,76 @@
         "phone",
         "offline_access",
         "microprofile-jwt"
-      ]
+      ],
+      "authorizationSettings": {
+        "allowRemoteResourceManagement": true,
+        "policyEnforcementMode": "ENFORCING",
+        "resources": [
+          {
+            "name": "Default Resource",
+            "type": "urn:stockminator:resources:default",
+            "ownerManagedAccess": false,
+            "attributes": {},
+            "_id": "e80f0f7a-4320-47b1-9b16-c4759850c8a7",
+            "uris": [
+              "/*"
+            ]
+          },
+          {
+            "name": "TestResource",
+            "type": "test",
+            "ownerManagedAccess": false,
+            "displayName": "TestResource",
+            "attributes": {},
+            "_id": "495a86dc-1e23-4c66-b68b-8abb0b11e3ef",
+            "uris": [],
+            "scopes": [
+              {
+                "name": "test.write"
+              },
+              {
+                "name": "test.read"
+              }
+            ]
+          }
+        ],
+        "policies": [
+          {
+            "id": "2c61107b-2859-456c-b4d8-78964749be0b",
+            "name": "Default Policy",
+            "description": "A policy that grants access only for users within this realm",
+            "type": "js",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "code": "// by default, grants any permission associated with this policy\n$evaluation.grant();\n"
+            }
+          },
+          {
+            "id": "a3bb18e2-38e8-42fa-af91-ada53cc433af",
+            "name": "Default Permission",
+            "description": "A permission that applies to the default resource type",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "defaultResourceType": "urn:stockminator:resources:default",
+              "applyPolicies": "[\"Default Policy\"]"
+            }
+          }
+        ],
+        "scopes": [
+          {
+            "id": "31ee7ac0-cdf1-471b-8081-fd38e7fb7500",
+            "name": "test.read"
+          },
+          {
+            "id": "a97bd8f4-b26b-44ee-b596-9280592bcdea",
+            "name": "test.write"
+          }
+        ],
+        "decisionStrategy": "UNANIMOUS"
+      }
     }
   ],
   "clientScopes": [
@@ -1199,6 +1407,24 @@
         "include.in.token.scope": "true",
         "display.on.consent.screen": "true"
       }
+    },
+    {
+      "id": "83b9163f-65bb-4364-8b4d-df991415f9c3",
+      "name": "test.write",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      }
+    },
+    {
+      "id": "156b1b45-3ae4-4bf7-a5c8-f64f51486861",
+      "name": "test.read",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      }
     }
   ],
   "defaultDefaultClientScopes": [
@@ -1226,9 +1452,80 @@
   "smtpServer": {},
   "eventsEnabled": false,
   "eventsListeners": [
-    "jboss-logging"
+    "jboss-logging",
+    "keycloak-to-rabbitmq"
   ],
-  "enabledEventTypes": [],
+  "enabledEventTypes": [
+    "UPDATE_CONSENT_ERROR",
+    "SEND_RESET_PASSWORD",
+    "GRANT_CONSENT",
+    "UPDATE_TOTP",
+    "REMOVE_TOTP",
+    "REVOKE_GRANT",
+    "LOGIN_ERROR",
+    "CLIENT_LOGIN",
+    "RESET_PASSWORD_ERROR",
+    "IMPERSONATE_ERROR",
+    "CODE_TO_TOKEN_ERROR",
+    "CUSTOM_REQUIRED_ACTION",
+    "RESTART_AUTHENTICATION",
+    "UPDATE_PROFILE_ERROR",
+    "IMPERSONATE",
+    "LOGIN",
+    "UPDATE_PASSWORD_ERROR",
+    "CLIENT_INITIATED_ACCOUNT_LINKING",
+    "TOKEN_EXCHANGE",
+    "REGISTER",
+    "LOGOUT",
+    "DELETE_ACCOUNT_ERROR",
+    "CLIENT_REGISTER",
+    "IDENTITY_PROVIDER_LINK_ACCOUNT",
+    "UPDATE_PASSWORD",
+    "DELETE_ACCOUNT",
+    "FEDERATED_IDENTITY_LINK_ERROR",
+    "CLIENT_DELETE",
+    "IDENTITY_PROVIDER_FIRST_LOGIN",
+    "VERIFY_EMAIL",
+    "CLIENT_DELETE_ERROR",
+    "CLIENT_LOGIN_ERROR",
+    "RESTART_AUTHENTICATION_ERROR",
+    "REMOVE_FEDERATED_IDENTITY_ERROR",
+    "EXECUTE_ACTIONS",
+    "TOKEN_EXCHANGE_ERROR",
+    "PERMISSION_TOKEN",
+    "SEND_IDENTITY_PROVIDER_LINK_ERROR",
+    "EXECUTE_ACTION_TOKEN_ERROR",
+    "SEND_VERIFY_EMAIL",
+    "EXECUTE_ACTIONS_ERROR",
+    "REMOVE_FEDERATED_IDENTITY",
+    "IDENTITY_PROVIDER_POST_LOGIN",
+    "IDENTITY_PROVIDER_LINK_ACCOUNT_ERROR",
+    "UPDATE_EMAIL",
+    "REGISTER_ERROR",
+    "REVOKE_GRANT_ERROR",
+    "LOGOUT_ERROR",
+    "UPDATE_EMAIL_ERROR",
+    "EXECUTE_ACTION_TOKEN",
+    "CLIENT_UPDATE_ERROR",
+    "UPDATE_PROFILE",
+    "FEDERATED_IDENTITY_LINK",
+    "CLIENT_REGISTER_ERROR",
+    "SEND_VERIFY_EMAIL_ERROR",
+    "SEND_IDENTITY_PROVIDER_LINK",
+    "RESET_PASSWORD",
+    "CLIENT_INITIATED_ACCOUNT_LINKING_ERROR",
+    "UPDATE_CONSENT",
+    "REMOVE_TOTP_ERROR",
+    "VERIFY_EMAIL_ERROR",
+    "SEND_RESET_PASSWORD_ERROR",
+    "CLIENT_UPDATE",
+    "IDENTITY_PROVIDER_POST_LOGIN_ERROR",
+    "CUSTOM_REQUIRED_ACTION_ERROR",
+    "UPDATE_TOTP_ERROR",
+    "CODE_TO_TOKEN",
+    "GRANT_CONSENT_ERROR",
+    "IDENTITY_PROVIDER_FIRST_LOGIN_ERROR"
+  ],
   "adminEventsEnabled": false,
   "adminEventsDetailsEnabled": false,
   "identityProviders": [

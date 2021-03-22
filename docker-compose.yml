@@ -79,12 +79,20 @@ services:
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: admin
       KEYCLOAK_IMPORT: /tmp/keycloak-realm.json
+      KK_TO_RMQ_URL: rabbitmq
+      KK_TO_RMQ_PORT: 5672
+      KK_TO_RMQ_VHOST: /
+      KK_TO_RMQ_EXCHANGE: amq.topic
+      KK_TO_RMQ_USERNAME: guest
+      KK_TO_RMQ_PASSWORD: guest
       # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
       #JDBC_PARAMS: "ssl=true"
     ports:
       - 4444:8080
     volumes:
       - ./keycloak-realm.json:/tmp/keycloak-realm.json
+      - ./keycloak-to-rabbit-1.0.jar:/opt/jboss/keycloak/standalone/deployments/keycloak-to-rabbit-1.0.jar
+#     source: https://github.com/aznamier/keycloak-event-listener-rabbitmq
     networks:
      - stockminator_network
     depends_on:
