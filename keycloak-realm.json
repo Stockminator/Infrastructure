@@ -740,7 +740,8 @@
       "clientAuthenticatorType": "client-secret",
       "secret": "**********",
       "redirectUris": [
-        "http://localhost:7575/login/oauth2/code/keycloak"
+        "http://localhost:7575/login/oauth2/code/keycloak",
+        "http://localhost:7574/login/oauth2/code/keycloak"
       ],
       "webOrigins": [],
       "notBefore": 0,
